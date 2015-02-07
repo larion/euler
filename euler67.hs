@@ -1,39 +1,37 @@
-infinity = read("Infinity")::Double
+import Data.Function.Memoize
 
 main = print maxPathInTriangle
 
 -- Take the maximum from the path weights in the last row of a triangle
-maxPathInTriangle = maximum maxPathList where 
-    maxPathList = [maxPath lastIndex col | col <- [0..lastIndex]] where 
-        lastIndex = (length triangle) - 1
 
--- The weight of the maximal path from the top cell to the cell at 
+maxPathInTriangle = maximum maxPathList
+    where
+    maxPathList = [maxPath lastIndex col | col <- [0..lastIndex]]
+        where
+        lastIndex = length triangle - 1
+
+-- The weight of the maximal path from the top cell to the cell at
 -- row, col.
 --
 -- The maximal path in the first row is simply the value of the top number
 --
--- Pretend that everything out of bounds is negative infinity (so that we
+-- Pretend that everything out of bounds is minBound::Int (so that we
 -- can generalize to negative numbers). This way no path will go out of the
 -- triangle.
 --
 -- Otherwise the weight of the maximal path is the maximum of the left
 -- upper and the right upper cell + the value of the current cell
 
-maxPath row col
+maxPathMaker :: (Int -> Int -> Int) -> Int -> Int -> Int
+maxPathMaker f row col
     | row==0                = head $ head triangle
-    | col < 0 || col > row  = - infinity
+    | col < 0 || col > row  = minBound::Int
     | otherwise             = max left right + triangle !! row !! col
-    where
-        left = maxPathMemoized (row-1) (col-1)
-        right = maxPathMemoized (row-1) col
+        where
+        left  = f (row-1) (col-1)
+        right = f (row-1) col
 
-maxPathMemoized row col
-    | col < 0 || row < 0 || row < col    =   - infinity
-    | otherwise             = maxPathMemoizedList !! row !! col
-
-maxPathMemoizedList = map getRow [0..lastIndex] where
-    getRow row = map (\col -> maxPath row col) [0..row] where
-    lastIndex = length triangle - 1
+maxPath = memoFix2 maxPathMaker
 
 triangle = [
     [59],
