@@ -33,14 +33,16 @@
 (count (lambda (x) (apply sunday? 1 x))
        (for*/list ([yr (range 1901 2001)]
                    [mo (range 1 13)])
-         (list yr mo)))
+         (list mo yr)))
 
+(check-false (leapYear? 1901))
 (check-false (leapYear? 1900))
 (check-true (leapYear? 1904))
 (check-true (leapYear? 2000))
 
+(check-eq? 366 (daysInYear 2000))
+(check-eq? 365 (daysInYear 1900))
+
 (check-false (sunday? 1 1 1900))
 (check-false (sunday? 1 8 1901))
 (check-true (sunday? 1 9 1901))
-
-(check-eq? 42004 (daysSince1900 1 1 2015))
